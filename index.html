@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Distributed Hydronic Fan Coil Systems: Energy Reduction Analysis for ThermoLift Applications</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: rgba(255,255,255,0.96);
+      --panel2: rgba(255,255,255,0.90);
+      --text: #0f172a;
+      --muted: #475569;
+      --line: rgba(15, 23, 42, 0.10);
+      --shadow: 0 10px 30px rgba(2,6,23,0.18);
+      --radius: 18px;
+      --maxw: 1120px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      line-height: 1.6;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 800px at 20% 0%, rgba(56,189,248,0.22), transparent 55%),
+        radial-gradient(900px 700px at 85% 10%, rgba(168,85,247,0.18), transparent 50%),
+        radial-gradient(900px 700px at 40% 90%, rgba(34,197,94,0.16), transparent 55%),
+        var(--bg);
+    }
+    a { color: inherit; }
+    .skip {
+      position:absolute; left:-999px; top:auto; width:1px; height:1px; overflow:hidden;
+    }
+    .skip:focus {
+      left: 16px; top: 16px; width:auto; height:auto;
+      background: #fff; padding: 10px 12px; border-radius: 12px;
+      box-shadow: var(--shadow); z-index: 1000;
+    }
+    .wrap {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 22px 18px 56px;
+    }
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(10px);
+      background: rgba(255,255,255,0.10);
+      border-bottom: 1px solid rgba(255,255,255,0.14);
+    }
+    .nav-inner {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 12px 18px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 260px;
+    }
+    .brand strong {
+      color: #fff;
+      letter-spacing: -0.02em;
+      font-size: 14px;
+    }
+    .brand span {
+      color: rgba(255,255,255,0.75);
+      font-size: 12px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: rgba(255,255,255,0.88);
+      font-size: 12px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.08);
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .nav-links a:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.14);
+      border-color: rgba(255,255,255,0.30);
+    }
+    header {
+      padding-top: 18px;
+    }
+    .hero {
+      display: grid;
+      gap: 14px;
+    }
+    .hero h1 {
+      margin: 0;
+      color: #fff;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      font-size: clamp(26px, 3.2vw, 40px);
+    }
+    .hero p {
+      margin: 0;
+      color: rgba(255,255,255,0.86);
+      max-width: 74ch;
+      font-size: 15px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .meta {
+      grid-column: span 12;
+      padding: 16px;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .meta-card {
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(2,6,23,0.03);
+      border: 1px solid rgba(2,6,23,0.06);
+    }
+    .meta-k {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+    .meta-v {
+      font-weight: 650;
+      color: #0b1220;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .highlights {
+      grid-column: span 12;
+      padding: 16px;
+    }
+    .highlights h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+    }
+    .highlights ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 6px;
+      color: #0b1220;
+    }
+    main {
+      margin-top: 18px;
+      display: grid;
+      gap: 14px;
+    }
+    .section {
+      scroll-margin-top: 92px;
+    }
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 16px 16px 0;
+    }
+    .section-head h2 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -0.01em;
+    }
+    .toplink {
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(71,85,105,0.45);
+    }
+    .section-body {
+      padding: 10px 16px 16px;
+    }
+    .section-body h3 {
+      margin: 16px 0 6px;
+      font-size: 15px;
+    }
+    .section-body p {
+      margin: 10px 0;
+      color: #0f172a;
+    }
+    .section-body ul, .section-body ol {
+      margin: 10px 0;
+      padding-left: 18px;
+    }
+    .section-body li {
+      margin: 6px 0;
+    }
+    .label {
+      margin: 14px 0 6px;
+      font-size: 13px;
+      color: #0b1220;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    hr {
+      border: none;
+      height: 1px;
+      background: rgba(2,6,23,0.10);
+      margin: 14px 0;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin: 12px 0;
+      border-radius: 14px;
+      border: 1px solid rgba(2,6,23,0.10);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 640px;
+      background: #fff;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(2,6,23,0.08);
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      background: rgba(248,250,252,0.98);
+      z-index: 1;
+      font-size: 12px;
+      color: #0b1220;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    tr:last-child td { border-bottom: none; }
+    footer {
+      margin-top: 18px;
+      text-align: center;
+      color: rgba(255,255,255,0.72);
+      font-size: 12px;
+    }
+    @media (max-width: 980px) {
+      .brand { min-width: 200px; }
+      .meta-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .nav-inner { align-items: flex-start; flex-direction: column; gap: 10px; }
+      .nav-links { justify-content: flex-start; }
+      .meta-grid { grid-template-columns: 1fr; }
+      table { min-width: 520px; }
+    }
+  </style>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<div id="top" class="nav">
+  <div class="nav-inner">
+    <div class="brand" aria-label="Site title">
+      <strong>ThermoLift • Hydronic Distribution Analysis</strong>
+      <span>January 7, 2026</span>
+    </div>
+    <div class="nav-links" aria-label="Jump to section">
+      <a href="#implementation-solution---ready-for-deployment">Implementation Solution - Ready for Deployment</a>
+<a href="#executive-summary">Executive Summary</a>
+<a href="#1-traditional-central-system-limitations">1. Traditional Central System Limitations</a>
+<a href="#2-distributed-hydronic-fan-coil-advantages">2. Distributed Hydronic Fan Coil Advantages</a>
+<a href="#3-thermolift-integration-cop-and-afue-optimization">3. ThermoLift Integration: COP and AFUE Optimization</a>
+<a href="#4-hydronic-system-specifications">4. Hydronic System Specifications</a>
+<a href="#5-system-design-implications-for-thermolift">5. System Design Implications for ThermoLift</a>
+<a href="#6-energy-reduction-summary-for-thermolift-applications">6. Energy Reduction Summary for ThermoLift Applications</a>
+<a href="#7-recommendations">7. Recommendations</a>
+<a href="#8-conclusion">8. Conclusion</a>
+<a href="#appendix-reference-documentation">Appendix: Reference Documentation</a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="hero">
+    <h1>Distributed Hydronic Fan Coil Systems: Energy Reduction Analysis for ThermoLift Applications</h1>
+    <p>This analysis examines the energy reduction potential of distributed, zone-controlled hydronic fan coil systems as a strategy for reducing HVAC capacity requirements and improving total building energy efficiency—while maximizing ThermoLift&#x27;s COP and AFUE advantages.</p>
+  </header>
+
+  <div class="grid">
+    <div class="card meta">
+      <div class="meta-grid">
+        
+      <div class="meta-card">
+        <div class="meta-k">Prepared for</div>
+        <div class="meta-v">Akshay - Mechanical Engineer</div>
+      </div>
+
+      <div class="meta-card">
+        <div class="meta-k">Subject</div>
+        <div class="meta-v">System Capacity Reduction and Energy Savings Potential</div>
+      </div>
+
+      <div class="meta-card">
+        <div class="meta-k">Date</div>
+        <div class="meta-v">January 7, 2026</div>
+      </div>
+
+      <div class="meta-card">
+        <div class="meta-k">Focus</div>
+        <div class="meta-v">Integration with ThermoLift Natural Gas Heat Pump Technology</div>
+      </div>
+      </div>
+    </div>
+
+    <div class='card highlights'><h2>At a glance</h2><ul><li>System capacity reduction: 25-40% compared to central systems</li>
+<li>Energy savings potential: Up to 40% total building energy reduction</li>
+<li>ThermoLift COP optimization through low-temperature heating operation (110°F)</li>
+<li>Standard cooling water temperatures (45°F) fully compatible with ThermoLift</li></ul></div>
+  </div>
+
+  <main id="content" aria-label="Main content">
+    
+      <section id="implementation-solution---ready-for-deployment" class="card section">
+        <div class="section-head">
+          <h2>Implementation Solution - Ready for Deployment</h2>
+          <a class="toplink" href="#top" aria-label="Back to top">↑ Top</a>
+        </div>
+        <div class="section-body">
+          <p><strong>We have identified a complete solution for low-temperature water distributed HVAC using the Chiltrix CXI fan coil series.</strong> Already used in residential and commercial chilled water air conditioning, the system simply needs to be adapted for the lower temperature operation.</p>
+<h4 class="label">Key Implementation Requirements</h4>
+<ul><li>Distribute insulated PEX plumbing lines to each zone</li><li>Ceiling-mounted fan coils with integrated condensate management at point of use</li><li>Standard 120V electrical connections (8-22 watts per unit)</li></ul>
+<h4 class="label">Supplier Contact</h4>
+<ul><li><strong>Chiltrix Inc.</strong> - Chesapeake, VA</li><li><strong>Contacts:</strong> Matt or Michael Angelo</li><li><strong>Phone:</strong> 757-410-8640 / 1-800-916-2067</li><li><strong>Note:</strong> Chiltrix manufactures electric heat pump systems and ductless fan coil units. Fan coil models used widely in commercial hydronic systems and could be adapted for ThermoLift as the thermal source.</li></ul>
+<hr/>
+        </div>
+      </section>
+        
+
+      <section id="executive-summary" class="card section">
+        <div class="section-head">
+          <h2>Executive Summary</h2>
+          <a class="toplink" href="#top" aria-label="Back to top">↑ Top</a>
+        </div>
+        <div class="section-body">
+          <p>This analysis examines the energy reduction potential of distributed, zone-controlled hydronic fan coil systems as a strategy for reducing HVAC capacity requirements and improving total building energy efficiency—while maximizing ThermoLift&#x27;s COP and AFUE advantages.</p>
+<h4 class="label">Key Findings</h4>
+<ul><li>System capacity reduction: 25-40% compared to central systems</li><li>Energy savings potential: Up to 40% total building energy reduction</li><li>ThermoLift COP optimization through low-temperature heating operation (110°F)</li><li>Standard cooling water temperatures (45°F) fully compatible with ThermoLift</li></ul>
+<hr/>
+        </div>
+      </section>
+        
+
+      <section id="1-traditional-central-system-limitations" class="card section">
+        <div class="section-head">
+          <h2>1. Traditional Central System Limitations</h2>
+          <a class="toplink" href="#top" aria-label="Back to top">↑ Top</a>
+        </div>
+        <div class="section-body">
+          <h3 id="1-traditional-central-system-limitations-single-thermostat-operation">Single-Thermostat Operation</h3>
+<p>Traditional residential HVAC systems operate with:</p>
+<ul><li><strong>Single thermostat control</strong> for entire building</li><li><strong>Full system capacity</strong> required at all times</li><li><strong>All zones conditioned simultaneously</strong> regardless of occupancy</li><li><strong>Peak design capacity</strong> sized for worst-case conditions</li></ul>
+<p><strong>Example: Typical 2,500 sq ft residence</strong></p>
+<ul><li>Central system sizing: 4 tons cooling capacity</li><li>Operates at full capacity when any zone calls</li><li>Unused rooms receive conditioned air</li><li>Duct losses: 15-25% of delivered air</li></ul>
+        </div>
+      </section>
+        
+
+      <section id="2-distributed-hydronic-fan-coil-advantages" class="card section">
+        <div class="section-head">
+          <h2>2. Distributed Hydronic Fan Coil Advantages</h2>
+          <a class="toplink" href="#top" aria-label="Back to top">↑ Top</a>
+        </div>
+        <div class="section-body">
+          <h3 id="2-distributed-hydronic-fan-coil-advantages-zone-level-control-architecture">Zone-Level Control Architecture</h3>
+<p>Distributed hydronic fan coil systems replace a single central ducted unit with:</p>
+<ul><li>Multiple compact fan coils, each serving a separate zone</li><li>Individual thermostats in each zone</li><li>Hydronic distribution via insulated water lines</li><li>On-demand conditioning only where needed</li></ul>
+<hr/>
+<h3 id="2-distributed-hydronic-fan-coil-advantages-capacity-reduction-analysis">Capacity Reduction Analysis</h3>
+<p>Zoned conditioning reduces peak system requirements due to diversity of load and occupancy patterns.</p>
+<div class="table-wrap"><table><thead><tr><th>Parameter</th><th>Central System</th><th>Distributed Hydronic</th></tr></thead><tbody><tr><td>Total Capacity</td><td>4.0 tons</td><td>2.5-3.0 tons</td></tr><tr><td>Zones Controlled</td><td>All simultaneously</td><td>Individual on-demand</td></tr><tr><td>Duct Losses</td><td>15-25%</td><td>None (ductless)</td></tr><tr><td>Oversizing Factor</td><td>Required for peak</td><td>Eliminated</td></tr><tr><td><strong>Capacity Reduction</strong></td><td>Baseline</td><td><strong>25-40%</strong></td></tr></tbody></table></div>
+<hr/>
+<h3 id="2-distributed-hydronic-fan-coil-advantages-energy-savings-potential">Energy Savings Potential</h3>
+<p>Research findings (ScienceDirect, 2022):</p>
+<ul><li>Zoned hydronic systems achieve <strong>up to 40% energy savings</strong> in residential dwellings</li><li>High thermal comfort maintained in all zones</li><li>Payback periods under 4.9 years demonstrated</li></ul>
+<h4 class="label">Energy Reduction Mechanisms</h4>
+<ol><li>Only occupied zones are conditioned</li><li>No thermal losses through ductwork</li><li>Improved part-load efficiency</li><li>Reduced cycling losses through continuous modulation</li></ol>
+<hr/>
+        </div>
+      </section>
+        
+
+      <section id="3-thermolift-integration-cop-and-afue-optimization" class="card section">
+        <div class="section-head">
+          <h2>3. ThermoLift Integration: COP and AFUE Optimization</h2>
+          <a class="toplink" href="#top" aria-label="Back to top">↑ Top</a>
+        </div>
+        <div class="section-body">
+          <h3 id="3-thermolift-integration-cop-and-afue-optimization-heating-mode-performance">Heating Mode Performance</h3>
+<p>ThermoLift performance is maximized when delivering low-temperature water:</p>
+<ul><li>Optimal supply water temp: <strong>110°F</strong></li><li>Lower discharge temperatures yield higher COP</li><li>Distributed fan coils can operate effectively at 110°F with proper sizing</li></ul>
+<hr/>
+<h3 id="3-thermolift-integration-cop-and-afue-optimization-cooling-mode-performance">Cooling Mode Performance</h3>
+<p>Chilled water operation is standard for fan coil systems:</p>
+<ul><li>Typical chilled water temp: <strong>45°F</strong></li><li>Fully compatible with hydronic fan coil units</li><li>Allows ThermoLift to operate in cooling mode effectively</li></ul>
+<hr/>
+<h3 id="3-thermolift-integration-cop-and-afue-optimization-afue-considerations">AFUE Considerations</h3>
+<p>ThermoLift offers high AFUE (up to 150%+) compared to conventional boilers:</p>
+<ul><li>Distributed zoning reduces runtime and gas consumption</li><li>Maintains higher efficiency by operating closer to ideal part-load conditions</li><li>Eliminates duct losses present in forced-air systems</li></ul>
+<hr/>
+        </div>
+      </section>
+        
+
+      <section id="4-hydronic-system-specifications" class="card section">
+        <div class="section-head">
+          <h2>4. Hydronic System Specifications</h2>
+          <a class="toplink" href="#top" aria-label="Back to top">↑ Top</a>
+        </div>
+        <div class="section-body">
+          <h3 id="4-hydronic-system-specifications-fan-coil-unit-options">Fan Coil Unit Options</h3>
+<p>Chiltrix CXI series fan coils provide a range of capacities for different zones:</p>
+<div class="table-wrap"><table><thead><tr><th>Model</th><th>Cooling BTU</th><th>Heating BTU</th><th>Water Flow</th><th>Pressure Drop</th></tr></thead><tbody><tr><td>CXI34</td><td>3,379</td><td>3,347</td><td>1.2 GPM</td><td>1.57 PSI</td></tr><tr><td>CXI65</td><td>6,451</td><td>5,666</td><td>1.6 GPM</td><td>1.89 PSI</td></tr><tr><td>CXI85</td><td>8,498</td><td>8,079</td><td>1.8 GPM</td><td>3.98 PSI</td></tr><tr><td>CXI120</td><td>11,877</td><td>9,727</td><td>2.4 GPM</td><td>4.05 PSI</td></tr></tbody></table></div>
+<hr/>
+<h3 id="4-hydronic-system-specifications-electrical-consumption-per-unit">Electrical Consumption (Per Unit)</h3>
+<ul><li>Typical power draw: <strong>8-22 watts</strong></li><li>Low parasitic energy use supports overall efficiency gains</li></ul>
+<hr/>
+<h3 id="4-hydronic-system-specifications-water-temperature-operating-range">Water Temperature Operating Range</h3>
+<div class="table-wrap"><table><thead><tr><th>Supply Water Temp</th><th>Fan Coil Compatibility</th><th>ThermoLift COP Impact</th></tr></thead><tbody><tr><td>110°F</td><td>Fully compatible</td><td><strong>Maximum COP</strong></td></tr><tr><td>120°F</td><td>Optimal range</td><td>High COP</td></tr><tr><td>140°F</td><td>Compatible</td><td>Moderate COP</td></tr><tr><td>160-180°F</td><td>Traditional radiator</td><td>Reduced COP</td></tr></tbody></table></div>
+<hr/>
+        </div>
+      </section>
+        
+
+      <section id="5-system-design-implications-for-thermolift" class="card section">
+        <div class="section-head">
+          <h2>5. System Design Implications for ThermoLift</h2>
+          <a class="toplink" href="#top" aria-label="Back to top">↑ Top</a>
+        </div>
+        <div class="section-body">
+          <h3 id="5-system-design-implications-for-thermolift-capacity-sizing-approach">Capacity Sizing Approach</h3>
+<p>Design should account for:</p>
+<ul><li>Reduced total capacity due to zoning diversity</li><li>Proper fan coil selection per zone load profile</li><li>Maintaining low supply temps for COP gains</li></ul>
+<hr/>
+<h3 id="5-system-design-implications-for-thermolift-hydraulic-design-considerations">Hydraulic Design Considerations</h3>
+<ul><li>Insulated PEX lines to each zone</li><li>Balancing valves and flow control</li><li>Condensate drainage integrated per unit</li><li>Appropriate pumping and pressure drop management</li></ul>
+<hr/>
+        </div>
+      </section>
+        
+
+      <section id="6-energy-reduction-summary-for-thermolift-applications" class="card section">
+        <div class="section-head">
+          <h2>6. Energy Reduction Summary for ThermoLift Applications</h2>
+          <a class="toplink" href="#top" aria-label="Back to top">↑ Top</a>
+        </div>
+        <div class="section-body">
+          <h3 id="6-energy-reduction-summary-for-thermolift-applications-combined-efficiency-gains">Combined Efficiency Gains</h3>
+<div class="table-wrap"><table><thead><tr><th>Efficiency Factor</th><th>Improvement Source</th><th>Estimated Gain</th></tr></thead><tbody><tr><td>Capacity Reduction</td><td>Zoning diversity</td><td>25-40%</td></tr><tr><td>Duct Loss Elimination</td><td>Hydronic distribution</td><td>15-25%</td></tr><tr><td>COP Improvement</td><td>110°F supply temp</td><td>Significant</td></tr><tr><td>Total Building Savings</td><td>Combined effects</td><td><strong>Up to 40%</strong></td></tr></tbody></table></div>
+<hr/>
+<h3 id="6-energy-reduction-summary-for-thermolift-applications-thermolift-specific-benefits">ThermoLift-Specific Benefits</h3>
+<ul><li>Lower peak capacity requirement enables smaller unit sizing</li><li>Higher seasonal performance due to low-temperature operation</li><li>Improved comfort through zone-level control</li><li>More compelling ROI for homeowners and retrofit markets</li></ul>
+<hr/>
+        </div>
+      </section>
+        
+
+      <section id="7-recommendations" class="card section">
+        <div class="section-head">
+          <h2>7. Recommendations</h2>
+          <a class="toplink" href="#top" aria-label="Back to top">↑ Top</a>
+        </div>
+        <div class="section-body">
+          <h3 id="7-recommendations-for-thermolift-demonstration-program">For ThermoLift Demonstration Program</h3>
+<ol><li>Select a representative residential test site with multiple occupancy zones</li><li>Deploy Chiltrix fan coils in key rooms (bedrooms, living areas, office)</li><li>Implement zone thermostats and occupancy-based scheduling</li><li>Operate ThermoLift at 110°F heating supply temp and record COP</li></ol>
+<hr/>
+<h3 id="7-recommendations-key-metrics-to-track">Key Metrics to Track</h3>
+<ul><li>Total system runtime vs. central baseline</li><li>Zone occupancy patterns and call frequency</li><li>ThermoLift COP and AFUE over seasonal conditions</li><li>Delivered comfort (room temp stability)</li><li>Electrical parasitic load (fans + pumps)</li></ul>
+<hr/>
+        </div>
+      </section>
+        
+
+      <section id="8-conclusion" class="card section">
+        <div class="section-head">
+          <h2>8. Conclusion</h2>
+          <a class="toplink" href="#top" aria-label="Back to top">↑ Top</a>
+        </div>
+        <div class="section-body">
+          <p>Distributed hydronic fan coil systems provide a practical pathway to reduce HVAC capacity requirements, improve energy efficiency, and maximize ThermoLift performance. By enabling low-temperature heating and on-demand zoning, this approach strengthens ThermoLift’s value proposition and improves the economics of deployment.</p>
+        </div>
+      </section>
+        
+
+      <section id="appendix-reference-documentation" class="card section">
+        <div class="section-head">
+          <h2>Appendix: Reference Documentation</h2>
+          <a class="toplink" href="#top" aria-label="Back to top">↑ Top</a>
+        </div>
+        <div class="section-body">
+          <ul><li>ScienceDirect (2022): Zoning and energy savings in hydronic systems</li><li>Chiltrix CXI Fan Coil Series specifications</li><li>ThermoLift performance considerations for supply water temperature</li></ul>
+        </div>
+      </section>
+        
+  </main>
+
+  <footer>
+    Built from the included analysis document • Single-page reference
+  </footer>
+</div>
+</body>
+</html>
